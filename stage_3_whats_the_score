@@ -1,0 +1,80 @@
+import sys
+import math
+from nltk.tokenize import sent_tokenize, regexp_tokenize
+
+
+def print_output(text: str, tokens: list, ari_score: list) -> None:
+    print("Text:", text.strip())
+    print()
+    print("Characters:", tokens[0])
+    print("Sentences:", tokens[1])
+    print("Words:", tokens[2])
+    print(f"Automated Readability Index: {ari_score[0]} (this text should be understood by {ari_score[1]} year olds).")
+
+def get_ari(tokens: list) -> list:
+    # tokens = [num_sentences, num_words, characters]
+    ari = 4.71 * (tokens[0] / tokens[2]) + 0.5 * (tokens[2] / tokens[1]) - 21.43
+    rounded_score = math.ceil(ari)
+    # Age brackets according to ARI scale
+    age_table = {
+        1: "5-6",
+        2: "6-7",
+        3: "7-8",
+        4: "8-9",
+        5: "9-10",
+        6: "10-11",
+        7: "11-12",
+        8: "12-13",
+        9: "13-14",
+        10: "14-15",
+        11: "15-16",
+        12: "16-17",
+        13: "17-18",
+        14: "18-22",
+    }
+    age = age_table.get(min(rounded_score, 14), "Unknown")
+    return [rounded_score, age]
+
+def get_tokens(text: str) -> list | None:
+    sentences = sent_tokenize(text)
+    words = regexp_tokenize(text, r"[0-9A-z']+")
+    characters = sum(1 for char in text if char not in [' ', '\n', '\t'])
+
+    num_sentences = len(sentences)
+    num_words = len(words)
+
+    if num_words == 0 or num_sentences == 0:
+        return None
+
+    return [characters, num_sentences, num_words]
+
+def main():
+    # Get the filename from command line
+    if len(sys.argv) < 2:
+        print("Usage: python3 readability.py <filename>")
+        return
+
+    filename = sys.argv[1]
+
+    try:
+        with open(filename, 'r', encoding='utf-8') as file:
+            text = file.read()
+
+        # Tokenize into sentences, words, characters
+        tokens = get_tokens(text)
+        if tokens is None:
+            print("Text must contain at least one word and one sentence.")
+            return
+
+        # Compute and get ARI score
+        ari_score = get_ari(tokens)
+
+        # Output results
+        print_output(text, tokens, ari_score)
+
+    except FileNotFoundError:
+        print(f"Error: File '{filename}' not found.")
+
+
+if __name__ == "__main__":
+    main()

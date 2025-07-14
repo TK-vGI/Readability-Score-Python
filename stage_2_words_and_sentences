@@ -1,0 +1,47 @@
+import sys
+from nltk.tokenize import sent_tokenize, regexp_tokenize
+
+HARD = "HARD"
+EASY = "EASY"
+
+
+def print_output(text: str, result: str) -> None:
+    print("Text:", text.strip())
+    print("Difficulty:", result)
+
+
+def main():
+    # Step 1: Get the filename from command line
+    if len(sys.argv) < 2:
+        print("Usage: python3 readability.py <filename>")
+        return
+
+    filename = sys.argv[1]
+
+    try:
+        with open(filename, 'r', encoding='utf-8') as file:
+            text = file.read()
+
+        # Step 2: Tokenize into sentences
+        sentences = sent_tokenize(text)
+
+        # Step 3: Tokenize each sentence into words
+        # Step 3: Tokenize each sentence into words
+        total_words = 0
+        for sentence in sentences:
+            words = regexp_tokenize(sentence, r"[0-9A-z']+")
+            total_words += len(words)
+
+        # Step 4: Compute average
+        average_words = total_words / len(sentences) if sentences else 0
+
+        # Step 5: Output results
+        difficulty = HARD if average_words > 10 else EASY
+        print_output(text, difficulty)
+
+    except FileNotFoundError:
+        print(f"Error: File '{filename}' not found.")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,25 @@
+import re
+from nltk.tokenize import word_tokenize, sent_tokenize, regexp_tokenize
+
+HARD = "HARD"
+EASY = "EASY"
+
+
+def print_output(result) -> None:
+    print("Difficulty: " + result)
+
+def main():
+
+    text_string = input()
+
+    text_sentences = sent_tokenize(text_string)
+    # text_words = word_tokenize(text_string)
+    pattern = re.compile(r'.')
+    text_regs = regexp_tokenize(text_string, pattern)
+
+    # print(f"Debug:\nSentences: {text_sentences}\nCharacters: {len(text_regs)}")
+    result = EASY if len(text_sentences) <= 3 and len(text_regs) <= 100 else HARD
+    print_output(result)
+
+if __name__ == "__main__":
+    main()
